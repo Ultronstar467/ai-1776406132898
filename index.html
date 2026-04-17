@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Tic Tac Toe</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap');
+
+        :root {
+            --bg-color: #2c3e50;
+            --board-bg: #34495e;
+            --cell-empty-bg: #4a6572;
+            --cell-x-color: #e74c3c;
+            --cell-o-color: #3498db;
+            --text-color: #ecf0f1;
+            --button-bg: #27ae60;
+            --button-hover-bg: #2ecc71;
+            --status-win-color: #f1c40f;
+            --status-draw-color: #9b59b6;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            gap: 20px;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+
+        h1 {
+            font-size: 3em;
+            color: var(--text-color);
+            margin-bottom: 20px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        #status {
+            font-size: 1.8em;
+            font-weight: 600;
+            min-height: 40px;
+            text-align: center;
+            margin-bottom: 20px;
+            padding: 10px;
+            border-radius: 8px;
+            background-color: var(--board-bg);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+            transition: all 0.3s ease;
+        }
+
+        #status.winner {
+            color: var(--status-win-color);
+            animation: pulse 1s infinite alternate;
+        }
+
+        #status.draw {
+            color: var(--status-draw-color);
+        }
+
+        @keyframes pulse {
+            from { transform: scale(1); }
+            to { transform: scale(1.05); }
+        }
+
+        #game-board {
+            display: grid;
+            grid-template-columns: repeat(3, 100px);
+            grid-template-rows: repeat(3, 100px);
+            gap: 8px;
+            background-color: var(--board-bg);
+            padding: 10px;
+            border-radius: 15px;
+            box-shadow: 0 8px 16px rgba(0,0,0,0.4);
+            max-width: fit-content;
+            margin-bottom: 30px;
+        }
+
+        .cell {
+            width: 100px;
+            height: 100px;
+            background-color: var(--cell-empty-bg);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 4em;
+            font-weight: 700;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.1s ease;
+            user-select: none;
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.2);
+        }
+
+        .cell:hover:not(.x):not(.o) {
+            background-color: #5d8291;
+            transform: scale(1.02);
+        }
+
+        .cell.x {
+            color: var(--cell-x-color);
+            background-color: #4a6572; /* Keep a subtle background */
+        }
+
+        .cell.o {
+            color: var(--cell-o-color);
+            background-color: #4a6572; /* Keep a subtle background */
+        }
+
+        .cell.occupied {
+            cursor: default;
+        }
+
+        #restart-button {
+            padding: 15px 30px;
+            font-size: 1.5em;
+            font-weight: 600;
+            background-color: var(--button-bg);
+            color: var(--text-color);
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        }
+
+        #restart-button:hover {
+            background-color: var(--button-hover-bg);
+            transform: translateY(-2px);
+        }
+
+        #restart-button:active {
+            transform: translateY(0);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 600px) {
+            h1 {
+                font-size: 2.5em;
+            }
+            #status {
+                font-size: 1.5em;
+                padding: 8px;
+            }
+            #game-board {
+                grid-template-columns: repeat(3, 80px);
+                grid-template-rows: repeat(3, 80px);
+                gap: 6px;
+                padding: 8px;
+            }
+            .cell {
+                width: 80px;
+                height: 80px;
+                font-size: 3.5em;
+            }
+            #restart-button {
+                padding: 12px 25px;
+                font-size: 1.3em;
+            }
+        }
+
+        @media (max-width: 400px) {
+            h1 {
+                font-size: 2em;
+            }
+            #status {
+                font-size: 1.2em;
+            }
+            #game-board {
+                grid-template-columns: repeat(3, 70px);
+                grid-template-rows: repeat(3, 70px);
+                gap: 5px;
+                padding: 7px;
+            }
+            .cell {
+                width: 70px;
+                height: 70px;
+                font-size: 3em;
+            }
+            #restart-button {
+                padding: 10px 20px;
+                font-size: 1.1em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <h1>Tic Tac Toe</h1>
+    <div id="status"></div>
+    <div id="game-board">
+        <div class="cell" data-index="0"></div>
+        <div class="cell" data-index="1"></div>
+        <div class="cell" data-index="2"></div>
+        <div class="cell" data-index="3"></div>
+        <div class="cell" data-index="4"></div>
+        <div class="cell" data-index="5"></div>
+        <div class="cell" data-index="6"></div>
+        <div class="cell" data-index="7"></div>
+        <div class="cell" data-index="8"></div>
+    </div>
+    <button id="restart-button">Restart Game</button>
+
+    <script>
+        const API_BASE_URL = "http://127.0.0.1:8000"; // Ensure this matches your FastAPI server address
+
+        const statusDisplay = document.getElementById('status');
+        const gameBoard = document.getElementById('game-board');
+        const restartButton = document.getElementById('restart-button');
+        const cells = document.querySelectorAll('.cell');
+
+        async function fetchGameState() {
+            try {
+                const response = await fetch(`${API_BASE_URL}/game`);
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                const gameState = await response.json();
+                updateUI(gameState);
+            } catch (error) {
+                console.error("Error fetching game state:", error);
+                statusDisplay.textContent = "Error: Could not connect to game server.";
+                statusDisplay.style.color = 'red';
+            }
+        }
+
+        function updateUI(gameState) {
+            const { board, current_player, winner, game_active } = gameState;
+
+            // Update board
+            cells.forEach((cell, index) => {
+                cell.textContent = board[index];
+                cell.classList.remove('x', 'o', 'occupied');
+                if (board[index] === 'X') {
+                    cell.classList.add('x', 'occupied');
+                } else if (board[index] === 'O') {
+                    cell.classList.add('o', 'occupied');
+                }
+                if (!game_active || board[index] !== '') {
+                    cell.classList.add('occupied');
+                } else {
+                    cell.classList.remove('occupied');
+                }
+            });
+
+            // Update status
+            statusDisplay.classList.remove('winner', 'draw');
+            if (winner) {
+                if (winner === "Draw") {
+                    statusDisplay.textContent = "It's a Draw!";
+                    statusDisplay.classList.add('draw');
+                } else {
+                    statusDisplay.textContent = `Player ${winner} Wins!`;
+                    statusDisplay.classList.add('winner');
+                }
+            } else {
+                statusDisplay.textContent = `Player ${current_player}'s Turn`;
+            }
+
+            // Disable board interaction if game is not active
+            if (!game_active) {
+                gameBoard.classList.add('game-over');
+            } else {
+                gameBoard.classList.remove('game-over');
+            }
+        }
+
+        async function handleCellClick(event) {
+            if (event.target.classList.contains('occupied') || gameBoard.classList.contains('game-over')) {
+                return; // Do nothing if cell is occupied or game is over
+            }
+
+            const index = parseInt(event.target.dataset.index);
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/game/move`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ index: index }),
+                });
+
+                if (response.status === 400) {
+                    const errorData = await response.json();
+                    alert(errorData.detail); // Show user friendly error message
+                } else if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
+                const gameState = await response.json();
+                updateUI(gameState);
+
+            } catch (error) {
+                console.error("Error making move:", error);
+                statusDisplay.textContent = "Error: Could not make move.";
+                statusDisplay.style.color = 'red';
+            }
+        }
+
+        async function handleRestartGame() {
+            try {
+                const response = await fetch(`${API_BASE_URL}/game/start`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                const gameState = await response.json();
+                updateUI(gameState);
+
+            } catch (error) {
+                console.error("Error restarting game:", error);
+                statusDisplay.textContent = "Error: Could not restart game.";
+                statusDisplay.style.color = 'red';
+            }
+        }
+
+        // Event Listeners
+        cells.forEach(cell => cell.addEventListener('click', handleCellClick));
+        restartButton.addEventListener('click', handleRestartGame);
+
+        // Initial game state fetch
+        document.addEventListener('DOMContentLoaded', fetchGameState);
+    </script>
+</body>
+</html>
